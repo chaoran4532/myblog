@@ -1,103 +1,109 @@
-use blog;
-CREATE TABLE `t_user`
+create table t_admin
 (
-    `user_id`       INT(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'primary_key',
-    `user_name`     VARCHAR(20)      NOT NULL COMMENT 'username',
-    `user_password` VARCHAR(20)      NOT NULL COMMENT 'password',
-    PRIMARY KEY (`user_id`)
-) ENGINE = INNODB
-  AUTO_INCREMENT = 1
-  DEFAULT CHARSET = utf8;
+    id        int auto_increment,
+    adminName varchar(20) not null,
+    password  varchar(20) null,
+    constraint t_admin_adminName_uindex
+        unique (adminName),
+    constraint t_admin_id_uindex
+        unique (id)
+);
 
-CREATE TABLE `t_category`
+alter table t_admin
+    add primary key (id);
+
+create table t_article
 (
-    `id`           INT(11)     NOT NULL AUTO_INCREMENT,
-    `categoryName` VARCHAR(30) NOT NULL,
-    PRIMARY KEY (`id`)
-) ENGINE = INNODB
-  AUTO_INCREMENT = 1
-  DEFAULT CHARSET = utf8;
+    id           int auto_increment
+        primary key,
+    title        varchar(80)                            not null,
+    author_id    int unsigned                           not null,
+    category_id  int                                    not null,
+    time         datetime default '2021-12-01 00:00:00' null,
+    star         int      default 0                     null,
+    comment      int      default 0                     null,
+    visit        int      default 0                     null,
+    content      text                                   null,
+    introduction varchar(200)                           null,
+    constraint author_id
+        foreign key (author_id) references t_user (user_id)
+            on delete cascade,
+    constraint category_id
+        foreign key (category_id) references t_category (id)
+            on delete cascade
+)
+    charset = utf8;
 
-
-
-CREATE TABLE `t_tag`
+create table t_category
 (
-    `id`  INT(11)     DEFAULT NULL AUTO_INCREMENT,
-    `tag` VARCHAR(30) DEFAULT NULL,
-    KEY `id` (`id`)
-) ENGINE = INNODB
-  AUTO_INCREMENT = 1
-  DEFAULT CHARSET = utf8;
-CREATE TABLE `t_article`
-(
-    `id`          INT(11)     NOT NULL AUTO_INCREMENT,
-    `title`       VARCHAR(80) NOT NULL,
-    `author_id`   INT(11)     UNSIGNED NOT NULL,
-    `category_id` INT(11)     NOT NULL,
-    `time`        DATETIME DEFAULT '2021-12-1 00:00:00',
-    `star`        INT(11)  DEFAULT '0',
-    `comment`     INT(11)  DEFAULT '0',
-    `visit`       INT(11)  DEFAULT '0',
-    `content`     TEXT,
-    PRIMARY KEY (`id`),
-    CONSTRAINT `author_id` FOREIGN KEY (`author_id`) REFERENCES `t_user` (`user_id`)ON DELETE CASCADE ON UPDATE NO ACTION,
-    CONSTRAINT `category_id` FOREIGN KEY (`category_id`) REFERENCES `t_category` (`id`)ON DELETE CASCADE ON UPDATE NO ACTION
-) ENGINE = INNODB
-  AUTO_INCREMENT = 1
-  DEFAULT CHARSET = utf8;
-# CREATE TABLE `t_article_delet`
-# (
-#     `id`          INT(11)     NOT NULL AUTO_INCREMENT,
-#     `title`       VARCHAR(80) NOT NULL,
-#     `author_id`   INT(11)     UNSIGNED NOT NULL,
-#     `category_id` INT(11)     NOT NULL,
-#     `time`        DATETIME DEFAULT '2021-12-1 00:00:00',
-#     `star`        INT(11)  DEFAULT '0',
-#     `comment`     INT(11)  DEFAULT '0',
-#     `visit`       INT(11)  DEFAULT '0',
-#     `content`     TEXT,
-#     PRIMARY KEY (`id`),
-#     CONSTRAINT `author_id` FOREIGN KEY (`author_id`) REFERENCES `t_user` (`user_id`)ON DELETE CASCADE ON UPDATE NO ACTION,
-#     CONSTRAINT `category_id` FOREIGN KEY (`category_id`) REFERENCES `t_category` (`id`)ON DELETE CASCADE ON UPDATE NO ACTION
-# ) ENGINE = INNODB
-#   DEFAULT CHARSET = utf8;
+    id           int auto_increment
+        primary key,
+    categoryName varchar(30) not null,
+    constraint t_category_categoryName_uindex
+        unique (categoryName)
+)
+    charset = utf8;
 
+create table t_comment
+(
+    id         int auto_increment
+        primary key,
+    article_id int                                    null,
+    nickname   varchar(30)                            null,
+    content    text                                   null,
+    time       datetime default '2021-12-01 00:00:00' null,
+    star       int      default 0                     null,
+    diss       int      default 0                     null,
+    constraint article_id
+        foreign key (article_id) references t_article (id)
+            on delete cascade
+)
+    charset = utf8;
 
-CREATE TABLE `t_comment`
+create table t_tag
 (
-    `id`         INT(11) NOT NULL AUTO_INCREMENT,
-    `article_id` INT(11)     DEFAULT NULL,
-    `nickname`   VARCHAR(30) DEFAULT NULL,
-    `content`    TEXT,
-    `time`       DATETIME    DEFAULT '2021-12-1 00:00:00',
-    `star`       INT(11)     DEFAULT '0',
-    `diss`       INT(11)     DEFAULT '0',
-    PRIMARY KEY (`id`),
-    KEY `article_id` (`article_id`),
-    CONSTRAINT `article_id` FOREIGN KEY (`article_id`) REFERENCES `t_article` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION
-) ENGINE = INNODB
-  AUTO_INCREMENT = 19
-  DEFAULT CHARSET = utf8;
-CREATE TABLE `article_tag`
-(
-    `id`         INT(11) NOT NULL AUTO_INCREMENT,
-    `article_id2` INT(11) NOT NULL,
-    `tag_id`     INT(11) NOT NULL,
-    primary key (`id`),
-    CONSTRAINT `article_id2` FOREIGN KEY (`article_id2`) REFERENCES `t_article` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION,
-    CONSTRAINT `tag_id` FOREIGN KEY (`tag_id`) REFERENCES `t_tag` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION
-) ENGINE = INNODB
-  AUTO_INCREMENT = 1
-  DEFAULT CHARSET = utf8;
+    id  int,
+    tag varchar(30) null,
+    constraint t_tag_tag_uindex
+        unique (tag)
+)
+    charset = utf8;
 
-CREATE TABLE `t_visitor`
+create index id
+    on t_tag (id);
+
+alter table t_tag
+    modify id int auto_increment;
+
+create table article_tag
 (
-    `id`     INT(11) NOT NULL AUTO_INCREMENT,
-    `ip`     VARCHAR(50) DEFAULT NULL,
-    `time`   VARCHAR(50) DEFAULT NULL,
-    `web_ip` VARCHAR(50) DEFAULT NULL,
-    `host`   VARCHAR(50) DEFAULT NULL,
-    PRIMARY KEY (`id`)
-) ENGINE = INNODB
-  AUTO_INCREMENT = 52
-  DEFAULT CHARSET = utf8;
+    id          int auto_increment
+        primary key,
+    article_id2 int not null,
+    tag_id      int not null,
+    constraint article_id2
+        foreign key (article_id2) references t_article (id)
+            on delete cascade,
+    constraint tag_id
+        foreign key (tag_id) references t_tag (id)
+            on delete cascade
+)
+    charset = utf8;
+
+create table t_user
+(
+    user_id       int unsigned auto_increment comment 'primary_key'
+        primary key,
+    user_name     varchar(20)                       not null comment 'username',
+    nickname      varchar(20)                       not null,
+    user_password varchar(20)                       not null comment 'password',
+    signature     varchar(100)                      null,
+    avatar_img    varchar(50) default 'default.jpg' null,
+    status        int         default 1             not null,
+    constraint t_user_nickname_uindex
+        unique (nickname),
+    constraint t_user_user_name_uindex
+        unique (user_name)
+)
+    charset = utf8;
+
