@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.blog.Dao.CommentDao">
+    <select id="getCommentListByArticleId" resultType="Comment">
+        select *
+        from t_comment
+        where article_id=#{articleId}
+        order by star desc
+    </select>
+    <insert id="addNewComment" parameterType="Comment">
+        insert into t_comment(article_id, nickname, content, time)
+        values (#{article_id}, #{nickname}, #{content}, #{time})
+    </insert>
+    <delete id="deleteComment">
+        delete
+        from t_comment
+        where id=#{commentId}
+    </delete>
+    <select id="getComment" resultType="Comment">
+        select *
+        from t_comment
+        where id=#{commentId}
+    </select>
+    <update id="updateStar">
+        update t_comment
+        set star=star+1
+        where id=#{commentId}
+    </update>
+    <update id="updateDiss">
+        update t_comment
+        set diss=diss+1
+        where id=#{commentId}
+    </update>
+</mapper>

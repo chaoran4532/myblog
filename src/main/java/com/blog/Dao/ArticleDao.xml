@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.blog.Dao.ArticleDao">
+    <select id="getArticleList" resultType="Article">
+        select a.* ,user_name as author,categoryName as category
+        from t_article a,t_category c,t_user u
+        where author_id=#{authorId} and user_id=author_id and category_id=c.id
+        order by time desc
+    </select>
+    <select id="getCount" resultType="int">
+        select count(1)
+        from t_article
+        where author_id=#{authorId}
+    </select>
+    <update id="updateCommentNum">
+        update t_article
+        set comment=comment+#{commentChange}
+        where id=#{articleId}
+
+    </update>
+    <select id="getVisitedRank" resultType="Article">
+        select a.* ,user_name as author,categoryName as category
+        from t_article a,t_category c,t_user u
+        where author_id=#{authorId} and user_id=author_id and category_id=c.id
+        order by visit desc
+        limit 0,10
+    </select>
+    <select id="getArticleById" resultType="Article">
+        select distinct a.* ,user_name as author,categoryName as category
+        from t_article a ,t_category c,t_user u
+        where   user_id=author_id and category_id=c.id and a.id=#{articleId}
+        group by(a.id)
+    </select>
+<!--    转义字符 &gt;表示>  &lt;表示<   -->
+    <select id="getNextArticle" resultType="Article">
+        select a.* ,user_name as author,categoryName as category
+        from t_article a,t_category c,t_user u
+        where author_id=#{authorId} and user_id=author_id and category_id=c.id and a.time &gt;#{time}
+        order by a.time asc
+        limit 1
+    </select>
+    <select id="getPrevArticle" resultType="Article">
+        select a.* ,user_name as author,categoryName as category
+        from t_article a,t_category c,t_user u
+        where author_id=#{authorId} and user_id=author_id and category_id=c.id and a.time &lt;#{time}
+        order by a.time desc
+        limit 1
+    </select>
+    <select id="getArticleByCategory" resultType="Article">
+        select a.* ,categoryName as category
+        from t_article a,t_category c
+        where a.author_id=#{authorId} and category_id=#{categoryId}  and category_id=c.id
+    </select>
+    <select id="getArticleByTag" resultType="Article">
+        select a.* ,categoryName as category
+        from t_article a,t_category c, article_tag at
+        where a.author_id=#{authorId} and at.tag_id=#{tagId} and a.id=at.article_id2  and category_id=c.id
+    </select>
+    <insert id="addNewArticle"  >
+        insert into t_article(title, author_id, category_id, time, content, introduction)
+        values (#{article.title},#{author.userId},#{article.categoryId},#{article.time},#{article.content},#{article.introduction})
+    </insert>
+    <update id="updateArticle">
+        update t_article
+        set category_id=#{categoryId} ,introduction=#{introduction}, content=#{content}
+        where id=#{id}
+    </update>
+    <select id="getNewArticle" parameterType="Article" resultType="Article">
+        select *
+        from t_article
+        where time=#{time} and title=#{title}
+    </select>
+    <select id="getArticleListByAll" resultType="Article">
+        select distinct a.* ,user_name as author,categoryName as category
+        from t_article a,t_category c,t_user u,article_tag at
+        where author_id=#{authorId} and user_id=author_id and category_id=c.id
+        <if test="articleName!=null and articleName!=''">
+            and title like  concat('%',#{articleName},'%')
+        </if>
+        <if test="categoryId>0">
+            and category_id=#{categoryId}
+        </if>
+        <if test="tagId>0">
+            and article_id2=a.id and at.tag_id=#{tagId}
+        </if>
+        order by time desc
+    </select>
+    <select id="getArticleListByAll2" resultType="Article">
+        select distinct a.* ,user_name as author,categoryName as category
+        from t_article a ,t_category c,t_user u,article_tag at
+        where  user_id=author_id and category_id=c.id
+        <if test="authorName!=null and authorName!=''">
+            and user_name like concat('%',#{authorName},'%')
+        </if>
+        <if test="articleName!=null and articleName!=''">
+            and title like  concat('%',#{articleName},'%')
+        </if>
+        <if test="categoryId>0">
+            and category_id=#{categoryId}
+        </if>
+        <if test="tagId>0">
+            and article_id2=a.id and at.tag_id=#{tagId}
+        </if>
+        group by (a.id)
+        order by a.time desc
+    </select>
+    <delete id="deleteArticle">
+        delete
+        from t_article
+        where id=#{articleId}
+    </delete>
+    <update id="updateStar">
+        update t_article
+        set star=star+1
+        where id=#{articleId}
+    </update>
+    <update id="updateVisit">
+        update t_article
+        set visit=visit+1
+        where id=#{articleId}
+    </update>
+</mapper>

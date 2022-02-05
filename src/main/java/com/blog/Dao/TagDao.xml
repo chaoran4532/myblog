@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.blog.Dao.TagDao">
+    <select id="getTagByUser" resultType="Tag">
+        select distinct t.id,tag
+        from t_tag t,t_article a ,article_tag at
+        where author_id=#{authorId} and at.article_id2=a.id and at.tag_id=t.id
+    </select>
+    <select id="getCount" resultType="int">
+        select count(1)
+        from t_tag
+        where id in (
+            select distinct t.id
+            from t_tag t,t_article a ,article_tag at
+            where author_id=1 and at.article_id2=a.id and at.tag_id=t.id)
+    </select>
+    <select id="getTagByArticle" resultType="Tag">
+        select  t.*
+        from article_tag at,t_tag t
+        where article_id2=#{articleId} and at.tag_id=t.id
+    </select>
+    <select id="getTag" resultType="Tag">
+        select *
+        from t_tag
+        where id=#{tagId}
+    </select>
+    <select id="getAllTag" resultType="Tag">
+        select *
+        from t_tag
+    </select>
+    <select id="getTagListByName" resultType="Tag">
+        select *
+        from t_tag
+        where tag in
+        <foreach collection="tagNameList" item="tag" index="index" open="(" close=")" separator=",">
+            #{tag}
+        </foreach>
+    </select>
+    <insert id="addTagToArticle" >
+        insert into article_tag (article_id2,tag_id)
+        values
+        <foreach collection="tagList" item="tag" index="index" separator=",">
+            (#{articleId},#{tag.id})
+        </foreach>
+    </insert>
+    <select id="getTagByAll" resultType="Tag">
+        select *
+        from t_tag
+        <where>
+            <if test="tagId>0">
+                id=#{tagId}
+            </if>
+            <if test="tagName!=null and tagName!=''">
+                tag like concat('%',#{tagName},'%')
+            </if>
+        </where>
+        order by id asc
+    </select>
+    <insert id="addNewTag">
+        <if test="tagName!=null and tagName!=''">
+        insert into t_tag(tag)
+        values (#{tagName})
+        </if>
+    </insert>
+    <update id="updateTag">
+        update t_tag
+        set tag=#{tagName}
+        where id=#{tagId}
+    </update>
+    <delete id="deleteTag">
+        delete
+        from t_tag
+        where id=#{tagId}
+    </delete>
+    <delete id="deleteTagToArticle">
+        delete
+        from article_tag
+        where article_id2=#{articleId}
+    </delete>
+</mapper>

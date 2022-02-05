@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context" xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/context
+        https://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd http://www.springframework.org/schema/aop https://www.springframework.org/schema/aop/spring-aop.xsd">
+    <!--导入jdbc数据-->
+    <context:property-placeholder location="classpath:db.properties"/>
+    <!--    注入连接池-->
+    <bean id="datasource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+        <property name="driverClassName" value="${jdbc.driverClass}"/>
+        <property name="url" value="${jdbc.url}"/>
+        <property name="username" value="${jdbc.username}"/>
+        <property name="password" value="${jdbc.password}"/>
+    </bean>
+
+    <bean class="org.mybatis.spring.SqlSessionFactoryBean" id="sqlSessionFactory">
+        <property name="dataSource" ref="datasource"/>
+        <property name="configLocation" value="classpath:mybatis-config.xml"/>
+        <!--        <property name="mapperLocations" value="classpath:com/chaoran/Dao/*.xml"/>-->
+    </bean>
+
+    <!--    配置Dao接口扫描包，动态实现将Dao接口注入spring-->
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"/>
+        <!--        设置要扫描的包-->
+        <property name="basePackage" value="com.blog.Dao"/>
+    </bean>
+
+
+<!--    &lt;!&ndash;    配置声明式事务&ndash;&gt;-->
+<!--    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">-->
+<!--        <property name="dataSource" ref="datasource"/>-->
+<!--    </bean>-->
+
+<!--    &lt;!&ndash;    配置事务通知&ndash;&gt;-->
+<!--    <tx:advice id="txAdvice" transaction-manager="transactionManager">-->
+<!--        <tx:attributes>-->
+<!--&lt;!&ndash;            <tx:method name="add" propagation="REQUIRED"/>&ndash;&gt;-->
+<!--&lt;!&ndash;            <tx:method name="detele" propagation="REQUIRED"/>&ndash;&gt;-->
+<!--&lt;!&ndash;            <tx:method name="upadte" propagation="REQUIRED"/>&ndash;&gt;-->
+<!--&lt;!&ndash;            <tx:method name="query" read-only="true"/>&ndash;&gt;-->
+<!--            <tx:method name="*" propagation="REQUIRED"/>-->
+<!--        </tx:attributes>-->
+<!--    </tx:advice>-->
+
+<!--    &lt;!&ndash;    配置事务切入&ndash;&gt;-->
+<!--    <aop:config>-->
+<!--        <aop:pointcut id="txPointcut" expression="execution(* com.smbms.Dao.*.*(..))"/>-->
+<!--        <aop:advisor advice-ref="txAdvice" pointcut-ref="txPointcut"/>-->
+<!--    </aop:config>-->
+
+</beans>

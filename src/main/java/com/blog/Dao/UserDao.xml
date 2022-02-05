@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.blog.Dao.UserDao">
+    <select id="getUserByName" resultType="User" >
+        select * from blog.t_user where user_name=#{userName}
+    </select>
+    <select id="getUserById" resultType="User">
+        select * from blog.t_user where user_id=#{userId}
+    </select>
+    <select id="getUserByNickname" resultType="User">
+        select * from t_user where nickname=#{nickname}
+    </select>
+    <insert id="addNewUser" parameterType="User">
+        insert into t_user(user_name, nickname, user_password)
+        values(#{userName}, #{nickName},#{userPassword})
+    </insert>
+    <update id="updatePwd">
+        update t_user
+        set user_password=#{password}
+        where user_id=#{userId}
+    </update>
+    <select id="getUserList" resultType="User">
+        select u.*,count(a.id) as articleNum
+        from t_user u left join t_article a on u.user_id = a.author_id
+        <where>
+            <if test="userId>0">
+                user_id=#{userId}
+            </if>
+            <if test="userName!=null and userName!=''">
+                user_name like concat('%',#{userName},'%')
+            </if>
+            <if test="nickname!=null and nickname!=''">
+                nickname like concat('%',#{nickname},'%')
+            </if>
+        </where>
+        group by(user_id)
+        order by user_id
+    </select>
+    <update id="updateUserStatus">
+        update t_user
+        set status=#{status}
+        where user_id=#{userId}
+    </update>
+    <delete id="deleteUser">
+        delete
+        from t_user
+        where user_id=#{userId}
+    </delete>
+</mapper>

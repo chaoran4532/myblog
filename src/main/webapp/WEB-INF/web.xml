@@ -1,0 +1,50 @@
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://java.sun.com/xml/ns/javaee"
+         xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
+         version="3.0">
+  <welcome-file-list>
+    <welcome-file>/homepage.jhtml/1</welcome-file>
+  </welcome-file-list>
+
+  <!-- 部署 DispatcherServlet -->
+  <servlet>
+    <servlet-name>springmvc</servlet-name>
+    <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+    <init-param>
+      <param-name>contextConfigLocation</param-name>
+      <param-value>classpath:ApplicationContext.xml</param-value>
+      <!--WARNING,若有多个spring文件，应写ApplicationContext.xml-->
+    </init-param>
+    <!-- 表示容器再启动时立即加载servlet -->
+    <load-on-startup>1</load-on-startup>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>springmvc</servlet-name>
+    <!-- 处理所有URL -->
+    <url-pattern>/</url-pattern>
+  </servlet-mapping>
+<servlet>
+  <servlet-name>UploadPic</servlet-name>
+  <servlet-class>com.blog.controller.UploadPic</servlet-class>
+</servlet>
+  <servlet-mapping>
+    <servlet-name>UploadPic</servlet-name>
+    <url-pattern>/UploadPic</url-pattern>
+  </servlet-mapping>
+  <filter>
+    <filter-name>CharacterEncodingFilter</filter-name>
+    <filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>
+    <init-param>
+      <param-name>encoding</param-name>
+      <param-value>utf-8</param-value>
+    </init-param>
+    <init-param>
+      <param-name>forceEncoding</param-name>
+      <param-value>true</param-value>
+    </init-param>
+  </filter>
+  <filter-mapping>
+    <filter-name>CharacterEncodingFilter</filter-name>
+    <url-pattern>/*</url-pattern>
+  </filter-mapping>
+</web-app>
