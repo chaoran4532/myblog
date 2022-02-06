@@ -1,1 +1,3 @@
 javaWeb课程设计
+
+使用了Spring+SpringMVC+MyBatis
